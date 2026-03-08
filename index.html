@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>PPT对账小工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f7;
+            color: #1c1c1e;
+            line-height: 1.4;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            background-color: #f5f5f7;
+            padding-bottom: 80px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Header 本月总收入 */
+        .income-header {
+            background-color: #0066cc;
+            color: white;
+            padding: 40px 20px 24px 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        .income-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        .income-amount {
+            font-size: 40px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .income-month {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        /* 按钮基础 */
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            touch-action: manipulation;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.1s ease;
+        }
+        .btn-primary {
+            background-color: #0066cc;
+            color: white;
+        }
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #c6c6c8;
+            color: #1c1c1e;
+        }
+        .btn-secondary {
+            background-color: #e5e5ea;
+            color: #1c1c1e;
+        }
+        .btn-ghost {
+            background-color: transparent;
+            color: #0066cc;
+        }
+        .btn:active {
+            opacity: 0.7;
+            transform: scale(0.97);
+        }
+
+        /* 视图切换 */
+        .view-toggle {
+            padding: 16px 16px 0 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 日历容器 */
+        .calendar-container {
+            padding: 16px;
+        }
+        .calendar-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #e9e9ed;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .month-nav {
+            display: flex;
+            gap: 12px;
+        }
+        .month-nav button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f2f2f5;
+            font-size: 16px;
+            font-weight: 500;
+            color: #0066cc;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 8px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 50%;
+            background-color: transparent;
+            width: 100%;
+            color: #1c1c1e;
+        }
+        .calendar-day.has-order {
+            background-color: #0066cc;
+            color: white;
+            font-weight: 500;
+        }
+        .calendar-day.empty {
+            color: #c6c6c8;
+        }
+
+        /* 周视图 */
+        .week-view-container {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #e9e9ed;
+        }
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .week-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .week-day-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 8px 0 4px 0;
+            color: #0066cc;
+        }
+
+        /* 显示模式切换 */
+        .display-toggle {
+            padding: 0 16px 16px 16px;
+            display: flex;
+            gap: 8px;
+        }
+        .display-toggle .btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* 订单列表 */
+        .recent-title {
+            padding: 0 16px 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1c1c1e;
+        }
+        .order-list {
+            padding: 0 16px;
+        }
+        .order-item-list {
+            background-color: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #f0f0f3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-item-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #f0f0f3;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .order-main {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .order-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #0066cc;
+        }
+        .order-name {
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .order-date {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+        .order-detail {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-top: 4px;
+            display: flex;
+            gap: 12px;
+        }
+        .order-price {
+            font-weight: 600;
+            color: #0066cc;
+        }
+        .order-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            justify-content: flex-end;
+        }
+        .action-btn {
+            padding: 4px 8px;
+            border-radius: 16px;
+            background-color: #f2f2f5;
+            font-size: 12px;
+        }
+
+        /* 浮动新增按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #0066cc;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+            z-index: 100;
+            transition: all 0.1s ease;
+        }
+        .fab:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px rgba(0,102,204,0.4);
+        }
+
+        /* 弹窗 */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .dialog-content {
+            background-color: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        .dialog-close {
+            font-size: 20px;
+            color: #8e8e93;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d9d9de;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .total-price {
+            background-color: #f2f2f5;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #0066cc;
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .form-buttons button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+
+        /* 删除确认 */
+        .alert-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+        .alert-content {
+            background-color: white;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 320px;
+            padding: 24px;
+            text-align: center;
+        }
+        .alert-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .alert-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 40px;
+        }
+        .delete-btn {
+            background-color: #ff3b30;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app">
+        <!-- 动态内容会由 JavaScript 渲染 -->
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 工具函数 ----------
+            const formatDate = (date) => {
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const parseDate = (dateStr) => {
+                const [y, m, d] = dateStr.split('-').map(Number);
+                return new Date(y, m - 1, d);
+            };
+
+            const formatDisplay = (dateStr) => {
+                const [y, m, d] = dateStr.split('-');
+                return `${y}/${m}/${d}`;
+            };
+
+            const getMonthDates = (year, month) => {
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const days = [];
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                    days.push(formatDate(new Date(year, month, d)));
+                }
+                return days;
+            };
+
+            // 获取某个月的所有日期（带星期几偏移）
+            const getCalendarDays = (year, month) => {
+                const firstDay = new Date(year, month, 1);
+                const startWeekday = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // 周一为0
+                const lastDate = new Date(year, month + 1, 0).getDate();
+                
+                const days = [];
+                // 填充空白
+                for (let i = 0; i < startWeekday; i++) {
+                    days.push(null);
+                }
+                // 填充日期
+                for (let d = 1; d <= lastDate; d++) {
+                    days.push(formatDate(new Date(year, month, d)));
+                }
+                return days;
+            };
+
+            // 获取周的开始和结束
+            const getWeekRange = (baseDate) => {
+                const date = new Date(baseDate);
+                const day = date.getDay(); // 0周日
+                const diffToMonday = day === 0 ? 6 : day - 1;
+                const monday = new Date(date);
+                monday.setDate(date.getDate() - diffToMonday);
+                
+                const weekDays = [];
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(monday);
+                    d.setDate(monday.getDate() + i);
+                    weekDays.push(formatDate(d));
+                }
+                return weekDays;
+            };
+
+            // ---------- 数据管理 ----------
+            const STORAGE_KEY = 'ppt_orders';
+
+            // 默认示例数据
+            const defaultOrders = [
+                { id: '1', orderName: '互联网大会PPT', receiveDate: '2026-03-10', finishDate: '2026-03-15', pages: 25, pricePerPage: 30, totalPrice: 750 },
+                { id: '2', orderName: '公司年报PPT', receiveDate: '2026-03-12', finishDate: '2026-03-15', pages: 40, pricePerPage: 40, totalPrice: 1600 },
+                { id: '3', orderName: '融资路演', receiveDate: '2026-03-14', finishDate: '2026-03-16', pages: 15, pricePerPage: 35, totalPrice: 525 },
+                { id: '4', orderName: '产品发布会', receiveDate: '2026-03-15', finishDate: '2026-03-17', pages: 20, pricePerPage: 30, totalPrice: 600 },
+            ];
+
+            // 加载数据
+            const loadOrders = () => {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    try {
+                        return JSON.parse(stored);
+                    } catch (e) {
+                        return defaultOrders;
+                    }
+                } else {
+                    // 首次使用，保存默认数据
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultOrders));
+                    return defaultOrders;
+                }
+            };
+
+            let orders = loadOrders();
+
+            const saveOrders = () => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+            };
+
+            // 获取某个日期的订单（完成日期）
+            const getOrdersByDate = (dateStr) => {
+                return orders.filter(o => o.finishDate === dateStr);
+            };
+
+            // 获取某个月的所有订单
+            const getOrdersByMonth = (year, month) => {
+                const monthStr = `${year}-${String(month+1).padStart(2, '0')}`;
+                return orders.filter(o => o.finishDate.startsWith(monthStr));
+            };
+
+            // 获取某个月的总收入
+            const getMonthlyTotal = (year, month) => {
+                return getOrdersByMonth(year, month).reduce((sum, o) => sum + o.totalPrice, 0);
+            };
+
+            // 获取某周的订单
+            const getOrdersByWeek = (baseDate) => {
+                const weekDays = getWeekRange(baseDate);
+                return orders.filter(o => weekDays.includes(o.finishDate));
+            };
+
+            // 获取某周的总收入
+            const getWeeklyTotal = (baseDate) => {
+                return getOrdersByWeek(baseDate).reduce((sum, o) => sum + o.totalPrice, 0);
+            };
+
+            // 获取某个月有订单的日期
+            const getDatesWithOrders = (year, month) => {
+                const monthOrders = getOrdersByMonth(year, month);
+                return new Set(monthOrders.map(o => o.finishDate));
+            };
+
+            // 获取最近N条订单
+            const getRecentOrders = (n) => {
+                return [...orders].sort((a, b) => new Date(b.finishDate) - new Date(a.finishDate)).slice(0, n);
+            };
+
+            // 添加订单
+            const addOrder = (orderData) => {
+                const newOrder = {
+                    ...orderData,
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 4)
+                };
+                orders.push(newOrder);
+                saveOrders();
+                return newOrder;
+            };
+
+            // 更新订单
+            const updateOrder = (id, orderData) => {
+                const index = orders.findIndex(o => o.id === id);
+                if (index !== -1) {
+                    orders[index] = { ...orders[index], ...orderData };
+                    saveOrders();
+                    return true;
+                }
+                return false;
+            };
+
+            // 删除订单
+            const deleteOrder = (id) => {
+                orders = orders.filter(o => o.id !== id);
+                saveOrders();
+            };
+
+            // 计算总价
+            const calculateTotal = (pages, pricePerPage) => {
+                return pages * pricePerPage;
+            };
+
+            // ---------- 状态管理 ----------
+            let currentMonth = new Date();
+            let currentYear = currentMonth.getFullYear();
+            let currentMonthIndex = currentMonth.getMonth();
+            
+            let currentWeekDate = new Date();
+            let timeView = 'month'; // 'month' or 'week'
+            let displayMode = 'list'; // 'list' or 'card'
+
+            // 弹窗状态
+            let dayDialogOpen = false;
+            let dayDialogDate = formatDate(new Date());
+            
+            let formOpen = false;
+            let editingOrder = null;
+            
+            let deleteId = null;
+
+            // 根元素
+            const app = document.getElementById('app');
+
+            // 渲染函数
+            const render = () => {
+                const monthlyTotal = getMonthlyTotal(currentYear, currentMonthIndex);
+                const datesWithOrdersSet = getDatesWithOrders(currentYear, currentMonthIndex);
+                const recentOrdersList = getRecentOrders(3);
+                const weekOrdersList = getOrdersByWeek(currentWeekDate);
+                const weeklyTotal = getWeeklyTotal(currentWeekDate);
+                const weekDays = getWeekRange(currentWeekDate);
+
+                // 按日期分组周订单
+                const weekOrdersByDay = {};
+                weekDays.forEach(day => {
+                    weekOrdersByDay[day] = orders.filter(o => o.finishDate === day);
+                });
+
+                // 生成日历数据
+                const calendarDays = getCalendarDays(currentYear, currentMonthIndex);
+
+                // 构建HTML
+                let html = `
+                    <!-- 本月总收入 -->
+                    <div class="income-header">
+                        <div class="income-label">📊 本月总收入</div>
+                        <div class="income-amount">¥${monthlyTotal.toLocaleString()}</div>
+                        <div class="income-month">${currentYear}年${currentMonthIndex+1}月</div>
+                    </div>
+
+                    <!-- 时间视图切换 -->
+                    <div class="view-toggle">
+                        <button class="btn ${timeView === 'month' ? 'btn-primary' : 'btn-outline'}" data-action="setTimeView" data-view="month">📅 月</button>
+                        <button class="btn ${timeView === 'week' ? 'btn-primary' : 'btn-outline'}" data-action="setTimeView" data-view="week">📆 周</button>
+                    </div>
+                `;
+
+                // 日历或周视图
+                html += `<div class="calendar-container">`;
+                if (timeView === 'month') {
+                    html += `
+                        <div class="calendar-card">
+                            <div class="calendar-header">
+                                <span>${currentYear}年${currentMonthIndex+1}月</span>
+                                <div class="month-nav">
+                                    <button data-action="prevMonth">←</button>
+                                    <button data-action="nextMonth">→</button>
+                                </div>
+                            </div>
+                            <div class="weekdays">
+                                <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
+                            </div>
+                            <div class="calendar-grid">
+                    `;
+                    
+                    calendarDays.forEach(day => {
+                        if (day === null) {
+                            html += `<div class="calendar-day empty"></div>`;
+                        } else {
+                            const hasOrder = datesWithOrdersSet.has(day);
+                            html += `<button class="calendar-day ${hasOrder ? 'has-order' : ''}" data-action="openDay" data-date="${day}">${day.split('-')[2]}</button>`;
+                        }
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 周视图
+                    html += `
+                        <div class="week-view-container">
+                            <div class="week-header">
+                                <span>${weekDays[0]} 至 ${weekDays[6]}</span>
+                                <div class="week-nav">
+                                    <button data-action="prevWeek">←</button>
+                                    <button data-action="nextWeek">→</button>
+                                </div>
+                            </div>
+                    `;
+                    
+                    if (displayMode === 'list') {
+                        // 列表模式
+                        weekDays.forEach(day => {
+                            const dayOrders = weekOrdersByDay[day] || [];
+                            if (dayOrders.length > 0) {
+                                html += `<div class="week-day-label">${formatDisplay(day)}</div>`;
+                                dayOrders.forEach(order => {
+                                    html += `
+                                        <div class="order-item-list" data-order-id="${order.id}">
+                                            <div>
+                                                <div class="order-main">
+                                                    <span class="order-dot"></span>
+                                                    <span class="order-name">${order.orderName}</span>
+                                                </div>
+                                                <div class="order-date">📅 接:${formatDisplay(order.receiveDate)} ✅交:${formatDisplay(order.finishDate)}</div>
+                                                <div class="order-detail">
+                                                    <span>📄 ${order.pages}页 × ¥${order.pricePerPage}</span>
+                                                    <span class="order-price">¥${order.totalPrice}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <button class="action-btn" data-action="editOrder" data-id="${order.id}">编辑</button>
+                                                <button class="action-btn" data-action="deleteRequest" data-id="${order.id}">删除</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                            }
+                        });
+                    } else {
+                        // 卡片模式
+                        html += `<div style="display: flex; flex-direction: column; gap: 12px;">`;
+                        weekDays.forEach(day => {
+                            const dayOrders = weekOrdersByDay[day] || [];
+                            dayOrders.forEach(order => {
+                                html += `
+                                    <div class="order-item-card" data-order-id="${order.id}">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span class="order-name">${order.orderName}</span>
+                                            <span class="order-price">¥${order.totalPrice}</span>
+                                        </div>
+                                        <div class="order-date" style="margin-top: 4px;">📅 交稿:${formatDisplay(order.finishDate)}</div>
+                                        <div class="order-detail">
+                                            <span>接单:${formatDisplay(order.receiveDate)}</span>
+                                            <span>${order.pages}页 × ¥${order.pricePerPage}</span>
+                                        </div>
+                                        <div class="order-actions">
+                                            <button class="action-btn" data-action="editOrder" data-id="${order.id}">编辑</button>
+                                            <button class="action-btn" data-action="deleteRequest" data-id="${order.id}">删除</button>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        });
+                        html += `</div>`;
+                    }
+                    
+                    html += `</div>`;
+                }
+                html += `</div>`;
+
+                // 显示模式切换
+                html += `
+                    <div class="display-toggle">
+                        <button class="btn ${displayMode === 'list' ? 'btn-secondary' : 'btn-ghost'}" data-action="setDisplayMode" data-mode="list">
+                            📋 列表
+                        </button>
+                        <button class="btn ${displayMode === 'card' ? 'btn-secondary' : 'btn-ghost'}" data-action="setDisplayMode" data-mode="card">
+                            🃏 卡片
+                        </button>
+                    </div>
+
+                    <!-- 最近订单 -->
+                    <div class="recent-title">📋 最近3笔订单</div>
+                    <div class="order-list">
+                `;
+
+                if (displayMode === 'list') {
+                    recentOrdersList.forEach(order => {
+                        html += `
+                            <div class="order-item-list" data-order-id="${order.id}">
+                                <div>
+                                    <div class="order-main">
+                                        <span class="order-dot"></span>
+                                        <span class="order-name">${order.orderName}</span>
+                                    </div>
+                                    <div class="order-date">📅 交稿:${formatDisplay(order.finishDate)}</div>
+                                    <div class="order-detail">
+                                        <span>📄 ${order.pages}页</span>
+                                        <span class="order-price">¥${order.totalPrice}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="action-btn" data-action="editOrder" data-id="${order.id}">编辑</button>
+                                    <button class="action-btn" data-action="deleteRequest" data-id="${order.id}">删除</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    recentOrdersList.forEach(order => {
+                        html += `
+                            <div class="order-item-card" data-order-id="${order.id}">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="order-name">${order.orderName}</span>
+                                    <span class="order-price">¥${order.totalPrice}</span>
+                                </div>
+                                <div class="order-date">📅 交稿:${formatDisplay(order.finishDate)}</div>
+                                <div class="order-detail">
+                                    <span>${order.pages}页 × ¥${order.pricePerPage}</span>
+                                </div>
+                                <div class="order-actions">
+                                    <button class="action-btn" data-action="editOrder" data-id="${order.id}">编辑</button>
+                                    <button class="action-btn" data-action="deleteRequest" data-id="${order.id}">删除</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                    </div>
+
+                    <!-- 浮动新增按钮 -->
+                    <button class="fab" data-action="openForm">+</button>
+                `;
+
+                // 弹窗：日期订单
+                if (dayDialogOpen) {
+                    const dayOrdersList = getOrdersByDate(dayDialogDate);
+                    html += `
+                        <div class="dialog-overlay" data-action="closeDayDialog">
+                            <div class="dialog-content" onclick="event.stopPropagation()">
+                                <div class="dialog-header">
+                                    <span>${formatDisplay(dayDialogDate)} · 共${dayOrdersList.length}笔订单</span>
+                                    <button class="dialog-close" data-action="closeDayDialog">✕</button>
+                                </div>
+                                <div style="max-height: 400px; overflow-y: auto;">
+                    `;
+                    
+                    dayOrdersList.forEach(order => {
+                        html += `
+                            <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f3;">
+                                <div style="font-weight:500;">${order.orderName}</div>
+                                <div style="font-size:12px; color:#8e8e93;">接单:${formatDisplay(order.receiveDate)}</div>
+                                <div style="font-size:13px; margin-top:4px;">📄 ${order.pages}页 × ¥${order.pricePerPage}</div>
+                                <div style="display:flex; justify-content:space-between; margin-top:6px;">
+                                    <span style="font-weight:600; color:#0066cc;">¥${order.totalPrice}</span>
+                                    <button class="action-btn" data-action="editOrder" data-id="${order.id}">编辑</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 弹窗：订单表单
+                if (formOpen) {
+                    const editData = editingOrder || { orderName: '', receiveDate: formatDate(new Date()), finishDate: formatDate(new Date()), pages: 1, pricePerPage: 30, totalPrice: 30 };
+                    const total = calculateTotal(editData.pages, editData.pricePerPage);
+                    html += `
+                        <div class="dialog-overlay" data-action="closeForm">
+                            <div class="dialog-content" onclick="event.stopPropagation()">
+                                <div class="dialog-header">
+                                    <span>${editingOrder ? '编辑订单' : '新建订单'}</span>
+                                    <button class="dialog-close" data-action="closeForm">✕</button>
+                                </div>
+                                <div>
+                                    <div class="form-group">
+                                        <label class="form-label">接单时间</label>
+                                        <input type="date" class="form-input" id="form-receiveDate" value="${editData.receiveDate}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">完成交稿时间</label>
+                                        <input type="date" class="form-input" id="form-finishDate" value="${editData.finishDate}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">稿件名称</label>
+                                        <input type="text" class="form-input" id="form-orderName" value="${editData.orderName}" placeholder="如：互联网大会PPT">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">页数</label>
+                                            <input type="number" class="form-input" id="form-pages" value="${editData.pages}" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">单价(元/页)</label>
+                                            <input type="number" class="form-input" id="form-price" value="${editData.pricePerPage}" min="1">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="total-price">
+                                            <span>总价</span>
+                                            <span>¥<span id="form-total-display">${total}</span></span>
+                                        </div>
+                                        <div style="font-size:12px; color:#8e8e93; text-align:right; margin-top:4px;">点击总价可手动修改</div>
+                                        <input type="number" id="form-total-manual" class="form-input hidden" value="${total}" step="0.01">
+                                    </div>
+                                    <div class="form-buttons">
+                                        <button class="btn btn-outline" data-action="closeForm">取消</button>
+                                        <button class="btn btn-primary" data-action="saveOrder" data-id="${editingOrder ? editingOrder.id : ''}">保存</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 删除确认
+                if (deleteId) {
+                    html += `
+                        <div class="alert-dialog">
+                            <div class="alert-content">
+                                <div style="font-size:18px; font-weight:600; margin-bottom:8px;">确定删除吗？</div>
+                                <div style="color:#8e8e93; margin-bottom:20px;">删除后无法恢复。</div>
+                                <div class="alert-actions">
+                                    <button class="btn btn-outline" data-action="cancelDelete">取消</button>
+                                    <button class="btn delete-btn" data-action="confirmDelete">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                app.innerHTML = html;
+            };
+
+            // 事件处理
+            const handleAction = (e) => {
+                const target = e.target.closest('[data-action]');
+                if (!target) return;
+                
+                const action = target.dataset.action;
+                
+                // 时间视图切换
+                if (action === 'setTimeView') {
+                    timeView = target.dataset.view;
+                    render();
+                }
+                
+                // 显示模式切换
+                else if (action === 'setDisplayMode') {
+                    displayMode = target.dataset.mode;
+                    render();
+                }
+                
+                // 月份切换
+                else if (action === 'prevMonth') {
+                    if (currentMonthIndex === 0) {
+                        currentYear -= 1;
+                        currentMonthIndex = 11;
+                    } else {
+                        currentMonthIndex -= 1;
+                    }
+                    render();
+                }
+                else if (action === 'nextMonth') {
+                    if (currentMonthIndex === 11) {
+                        currentYear += 1;
+                        currentMonthIndex = 0;
+                    } else {
+                        currentMonthIndex += 1;
+                    }
+                    render();
+                }
+                
+                // 周切换
+                else if (action === 'prevWeek') {
+                    const newDate = new Date(currentWeekDate);
+                    newDate.setDate(currentWeekDate.getDate() - 7);
+                    currentWeekDate = newDate;
+                    render();
+                }
+                else if (action === 'nextWeek') {
+                    const newDate = new Date(currentWeekDate);
+                    newDate.setDate(currentWeekDate.getDate() + 7);
+                    currentWeekDate = newDate;
+                    render();
+                }
+                
+                // 打开日期弹窗
+                else if (action === 'openDay') {
+                    dayDialogDate = target.dataset.date;
+                    dayDialogOpen = true;
+                    render();
+                }
+                
+                // 关闭日期弹窗
+                else if (action === 'closeDayDialog') {
+                    dayDialogOpen = false;
+                    render();
+                }
+                
+                // 打开表单（新增）
+                else if (action === 'openForm') {
+                    editingOrder = null;
+                    formOpen = true;
+                    render();
+                }
+                
+                // 关闭表单
+                else if (action === 'closeForm') {
+                    formOpen = false;
+                    render();
+                }
+                
+                // 编辑订单
+                else if (action === 'editOrder') {
+                    const id = target.dataset.id;
+                    editingOrder = orders.find(o => o.id === id) || null;
+                    if (editingOrder) {
+                        formOpen = true;
+                        dayDialogOpen = false;
+                        render();
+                    }
+                }
+                
+                // 请求删除
+                else if (action === 'deleteRequest') {
+                    deleteId = target.dataset.id;
+                    render();
+                }
+                
+                // 取消删除
+                else if (action === 'cancelDelete') {
+                    deleteId = null;
+                    render();
+                }
+                
+                // 确认删除
+                else if (action === 'confirmDelete') {
+                    if (deleteId) {
+                        deleteOrder(deleteId);
+                        deleteId = null;
+                        render();
+                    }
+                }
+                
+                // 保存订单
+                else if (action === 'saveOrder') {
+                    const id = target.dataset.id;
+                    
+                    const receiveDate = document.getElementById('form-receiveDate')?.value;
+                    const finishDate = document.getElementById('form-finishDate')?.value;
+                    const orderName = document.getElementById('form-orderName')?.value;
+                    const pages = parseInt(document.getElementById('form-pages')?.value) || 0;
+                    const pricePerPage = parseInt(document.getElementById('form-price')?.value) || 0;
+                    
+                    if (!receiveDate || !finishDate || !orderName || pages <= 0 || pricePerPage <= 0) {
+                        alert('请完整填写表单');
+                        return;
+                    }
+                    
+                    const totalPrice = pages * pricePerPage;
+                    
+                    const orderData = {
+                        receiveDate,
+                        finishDate,
+                        orderName,
+                        pages,
+                        pricePerPage,
+                        totalPrice
+                    };
+                    
+                    if (id) {
+                        updateOrder(id, orderData);
+                    } else {
+                        addOrder(orderData);
+                    }
+                    
+                    formOpen = false;
+                    editingOrder = null;
+                    render();
+                }
+            };
+
+            // 初始渲染
+            render();
+
+            // 监听点击事件
+            app.addEventListener('click', handleAction);
+
+            // 监听总价手动修改（简单实现）
+            document.addEventListener('input', (e) => {
+                if (e.target.id === 'form-pages' || e.target.id === 'form-price') {
+                    const pages = parseInt(document.getElementById('form-pages')?.value) || 0;
+                    const price = parseInt(document.getElementById('form-price')?.value) || 0;
+                    const total = pages * price;
+                    const totalSpan = document.getElementById('form-total-display');
+                    if (totalSpan) totalSpan.textContent = total;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
