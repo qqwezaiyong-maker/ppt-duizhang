@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>老友记·AI英语咖啡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f4e9; /* 米色背景 */
+            color: #2d1b3c; /* 深紫色文字 */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .app-container {
+            max-width: 420px;
+            width: 100%;
+            background-color: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(89, 52, 109, 0.15);
+            overflow: hidden;
+            border: 1px solid #e6d7c9;
+            position: relative;
+        }
+
+        /* 顶部海报 */
+        .friends-header {
+            background: linear-gradient(145deg, #7d5ba6 0%, #59346d 100%); /* 紫色渐变 */
+            padding: 20px 20px 16px 20px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .poster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .poster-title {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            margin-bottom: 4px;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        .poster-sub {
+            font-size: 14px;
+            opacity: 0.9;
+            letter-spacing: 2px;
+            background-color: rgba(255,255,255,0.2);
+            padding: 4px 16px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        .poster-characters {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .char-icon {
+            width: 44px;
+            height: 44px;
+            background-color: #f8f4e9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #59346d;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 主要内容区 */
+        .main-content {
+            padding: 20px 16px;
+            background-color: #fefcf7;
+        }
+
+        /* 模式切换 */
+        .mode-tabs {
+            display: flex;
+            background-color: #ede7db;
+            border-radius: 40px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #59346d;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+        }
+
+        .mode-tab.active {
+            background-color: #7d5ba6;
+            color: white;
+            box-shadow: 0 2px 8px rgba(125, 91, 166, 0.3);
+        }
+
+        /* 每日打气区域 */
+        .daily-card {
+            background-color: #f3eee4;
+            border-radius: 28px;
+            padding: 24px 16px;
+            margin-bottom: 24px;
+            border: 1px solid #e6d7c9;
+            box-shadow: 0 6px 0 #d9c7b2;
+        }
+
+        .random-avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-large {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(145deg, #9b7ebb, #7d5ba6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 12px;
+            border: 3px solid white;
+            box-shadow: 0 8px 0 #4a2e5a;
+        }
+
+        .quote-text {
+            font-size: 18px;
+            font-weight: 500;
+            text-align: center;
+            margin: 8px 0 4px;
+            line-height: 1.4;
+            color: #2d1b3c;
+        }
+
+        .quote-tag {
+            font-size: 12px;
+            color: #9b7ebb;
+            font-weight: 600;
+            margin-bottom: 16px;
+            background-color: #ede7db;
+            padding: 4px 12px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        .quote-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .icon-btn {
+            background-color: white;
+            border: 1px solid #d9c7b2;
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #59346d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #d9c7b2;
+            transition: all 0.1s;
+        }
+
+        .icon-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        .icon-btn.primary {
+            background-color: #7d5ba6;
+            color: white;
+            border-color: #59346d;
+            box-shadow: 0 2px 0 #59346d;
+        }
+
+        /* 聊天区域 */
+        .chat-container {
+            background-color: white;
+            border-radius: 24px;
+            border: 1px solid #e6d7c9;
+            padding: 16px;
+            margin-bottom: 16px;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 16px;
+            gap: 10px;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #7d5ba6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .message-name {
+            font-weight: 700;
+            color: #2d1b3c;
+            font-size: 15px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #9b7ebb;
+        }
+
+        .message-bubble {
+            background-color: #f3eee4;
+            padding: 12px;
+            border-radius: 18px 18px 18px 4px;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #2d1b3c;
+            border: 1px solid #e6d7c9;
+        }
+
+        .message-bubble.you {
+            background-color: #e1d5f0;
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .message-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #9b7ebb;
+        }
+
+        .message-footer span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        /* 练习模式卡片 */
+        .quiz-card {
+            background: linear-gradient(145deg, #f3eee4, #ede7db);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #d9c7b2;
+        }
+
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .quiz-avatar {
+            width: 48px;
+            height: 48px;
+            background-color: #7d5ba6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 22px;
+        }
+
+        .quiz-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #2d1b3c;
+        }
+
+        .quiz-question {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 16px 0;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .quiz-option {
+            background-color: white;
+            border: 1px solid #d9c7b2;
+            border-radius: 40px;
+            padding: 14px 18px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .quiz-option.selected {
+            background-color: #7d5ba6;
+            color: white;
+            border-color: #59346d;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* 底部输入区 */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 12px 0;
+            border-top: 1px solid #ede7db;
+            align-items: center;
+        }
+
+        .voice-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #7d5ba6;
+            color: white;
+            border: none;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #59346d;
+            transition: all 0.1s;
+        }
+
+        .voice-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .text-input {
+            flex: 1;
+            background-color: #f3eee4;
+            border: 1px solid #d9c7b2;
+            border-radius: 40px;
+            padding: 14px 18px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .text-input:focus {
+            border-color: #7d5ba6;
+        }
+
+        .invite-btn {
+            background-color: white;
+            border: 1px solid #d9c7b2;
+            border-radius: 40px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #59346d;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        /* 邀请弹窗 */
+        .invite-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .invite-modal {
+            background-color: white;
+            border-radius: 32px;
+            padding: 24px;
+            width: 90%;
+            max-width: 360px;
+            border: 2px solid #7d5ba6;
+        }
+
+        .invite-modal h3 {
+            color: #2d1b3c;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        .invite-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ede7db;
+        }
+
+        .invite-option input {
+            margin-right: 12px;
+            accent-color: #7d5ba6;
+            width: 20px;
+            height: 20px;
+        }
+
+        .invite-char {
+            font-weight: 600;
+            color: #2d1b3c;
+        }
+
+        .invite-desc {
+            font-size: 12px;
+            color: #9b7ebb;
+            margin-left: auto;
+        }
+
+        .invite-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app">
+        <!-- 动态内容由JavaScript渲染 -->
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 工具函数 ----------
+            const formatTime = () => {
+                const d = new Date();
+                return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+            };
+
+            // ---------- 角色数据 ----------
+            const characters = [
+                { id: 'monica', name: 'Monica', emoji: '🧹', color: '#7d5ba6', style: '热情、控制欲', catchphrase: 'I KNOW!' },
+                { id: 'chandler', name: 'Chandler', emoji: '😏', color: '#7d5ba6', style: '讽刺、幽默', catchphrase: 'Could I BE any more...' },
+                { id: 'joey', name: 'Joey', emoji: '🍕', color: '#7d5ba6', style: '简单、吃货', catchphrase: 'How YOU doing?' },
+                { id: 'phoebe', name: 'Phoebe', emoji: '🎸', color: '#7d5ba6', style: '古怪、天真', catchphrase: 'Smelly Cat...' },
+                { id: 'ross', name: 'Ross', emoji: '🦕', color: '#7d5ba6', style: '书呆子、认真', catchphrase: 'WE WERE ON A BREAK!' },
+                { id: 'rachel', name: 'Rachel', emoji: '👗', color: '#7d5ba6', style: '时尚、情绪化', catchphrase: 'Nooooo!' }
+            ];
+
+            // 台词库
+            const quotes = {
+                monica: [
+                    { text: "Welcome to the real world! It sucks. You're gonna love it!", type: '台词' },
+                    { text: "I know! I know! I'm not perfect, but I try!", type: '台词' },
+                    { text: "You can't just give up! That's not how it works!", type: '模仿' },
+                    { text: "Cleanliness is next to godliness... and I am a goddess!", type: '模仿' }
+                ],
+                chandler: [
+                    { text: "I'm not great at the advice. Can I interest you in a sarcastic comment?", type: '台词' },
+                    { text: "Could I *be* any more tired?", type: '台词' },
+                    { text: "I say more dumb things before 9am than most people say all day.", type: '模仿' },
+                    { text: "Here's a tip: if you're gonna be sarcastic, commit to it.", type: '模仿' }
+                ],
+                joey: [
+                    { text: "How YOU doing?", type: '台词' },
+                    { text: "Joey doesn't share food!", type: '台词' },
+                    { text: "You're so smart. You're like a walking dictionary!", type: '模仿' },
+                    { text: "If you're nervous, just pretend everyone's in their underwear.", type: '模仿' }
+                ],
+                phoebe: [
+                    { text: "Smelly Cat, Smelly Cat, what are they feeding you?", type: '台词' },
+                    { text: "They don't know that we know they know we know.", type: '台词' },
+                    { text: "The universe sends you signs. You just have to be weird enough to see them.", type: '模仿' },
+                    { text: "Singing makes everything better. Even math.", type: '模仿' }
+                ],
+                ross: [
+                    { text: "WE WERE ON A BREAK!", type: '台词' },
+                    { text: "Unagi. It's a state of total awareness.", type: '台词' },
+                    { text: "Actually, the word 'pivot' comes from Old French...", type: '模仿' },
+                    { text: "Learning is cool. Dinosaurs are cooler. You're somewhere in between.", type: '模仿' }
+                ],
+                rachel: [
+                    { text: "It's like all my life everyone's always telling me, 'You're a shoe!'", type: '台词' },
+                    { text: "Nooooo! I'm not gonna be 30!", type: '台词' },
+                    { text: "Fashion is art, honey. You either get it or you don't.", type: '模仿' },
+                    { text: "Sometimes you just need a good cry and a latte.", type: '模仿' }
+                ]
+            };
+
+            // 练习题库
+            const quizBank = {
+                ross: [
+                    { question: "What does 'pivot' mean?", options: ["旋转", "停止", "跳跃", "坐下"], answer: 0, explanation: "It means to turn or rotate, like the sofa in my famous scene!" },
+                    { question: "'Paleontologist' studies...", options: ["恐龙", "星星", "细菌", "植物"], answer: 0, explanation: "Dinosaurs! The most fascinating creatures ever!" }
+                ],
+                monica: [
+                    { question: "Complete: 'I _____ (live) in New York for 10 years.'", options: ["have lived", "lived", "was living", "live"], answer: 0, explanation: "Present perfect! Because it started in the past and continues now." }
+                ],
+                joey: [
+                    { question: "What does 'How YOU doing?' mean?", options: ["问候", "质问", "调情", "嘲笑"], answer: 2, explanation: "It's my signature flirting line! Say it with confidence." }
+                ]
+            };
+
+            // ---------- 状态 ----------
+            let currentMode = 'chat'; // 'chat' 或 'quiz'
+            let currentQuoteChar = characters[Math.floor(Math.random() * characters.length)];
+            let currentQuote = quotes[currentQuoteChar.id][Math.floor(Math.random() * quotes[currentQuoteChar.id].length)];
+            
+            let messages = [
+                { id: '1', character: 'phoebe', text: "Hey! Ready to learn some English? I'll make it fun, I promise!", time: '09:30', type: '模仿' },
+                { id: '2', character: 'you', text: "Yes! What's the best way to start?", time: '09:31', type: '你' },
+                { id: '3', character: 'ross', text: "Actually, the best way is to learn word origins. Did you know 'friend' comes from Old English?", time: '09:32', type: '模仿' }
+            ];
+
+            let currentQuiz = null;
+            let selectedQuizOption = null;
+            let quizResult = null;
+
+            let showInviteModal = false;
+            let inviteSettings = { random: true, selected: [] };
+
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+            // ---------- 渲染函数 ----------
+            const render = () => {
+                const app = document.getElementById('app');
+                
+                let html = `
+                    <!-- 顶部海报 -->
+                    <div class="friends-header">
+                        <div class="poster">
+                            <div class="poster-title">F•R•I•E•N•D•S</div>
+                            <div class="poster-sub">English Learning Cafe</div>
+                            <div class="poster-characters">
+                                <div class="char-icon">🧹</div>
+                                <div class="char-icon">😏</div>
+                                <div class="char-icon">🍕</div>
+                                <div class="char-icon">🎸</div>
+                                <div class="char-icon">🦕</div>
+                                <div class="char-icon">👗</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="main-content">
+                        <!-- 模式切换 -->
+                        <div class="mode-tabs">
+                            <button class="mode-tab ${currentMode === 'chat' ? 'active' : ''}" data-action="setMode" data-mode="chat">💬 自由聊天</button>
+                            <button class="mode-tab ${currentMode === 'quiz' ? 'active' : ''}" data-action="setMode" data-mode="quiz">📝 练习模式</button>
+                        </div>
+
+                        <!-- 每日打气 (只在聊天模式显示) -->
+                        ${currentMode === 'chat' ? `
+                        <div class="daily-card">
+                            <div class="random-avatar">
+                                <div class="avatar-large">${currentQuoteChar.emoji}</div>
+                                <div class="quote-text">"${currentQuote.text}"</div>
+                                <span class="quote-tag">🎬 ${currentQuote.type}</span>
+                                <div class="quote-actions">
+                                    <button class="icon-btn" data-action="newQuote">🔄 换一句</button>
+                                    <button class="icon-btn ${favorites.includes(currentQuote.text) ? 'primary' : ''}" data-action="toggleFavorite">❤️ ${favorites.includes(currentQuote.text) ? '已收藏' : '收藏'}</button>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <!-- 聊天区域 / 练习区域 -->
+                        ${currentMode === 'chat' ? renderChat() : renderQuiz()}
+
+                        <!-- 底部输入区 -->
+                        ${currentMode === 'chat' ? renderInputArea() : renderQuizInputArea()}
+                    </div>
+                `;
+
+                // 邀请弹窗
+                if (showInviteModal) {
+                    html += renderInviteModal();
+                }
+
+                app.innerHTML = html;
+            };
+
+            const renderChat = () => {
+                let chatHtml = `<div class="chat-container">`;
+                
+                messages.forEach(msg => {
+                    if (msg.character === 'you') {
+                        chatHtml += `
+                            <div class="message">
+                                <div class="message-avatar" style="background-color: #9b7ebb;">👤</div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-name">You</span>
+                                        <span class="message-time">${msg.time}</span>
+                                    </div>
+                                    <div class="message-bubble you">${msg.text}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const char = characters.find(c => c.id === msg.character);
+                        chatHtml += `
+                            <div class="message">
+                                <div class="message-avatar" style="background-color: ${char.color};">${char.emoji}</div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <span class="message-name">${char.name}</span>
+                                        <span class="message-time">${msg.time}</span>
+                                    </div>
+                                    <div class="message-bubble">${msg.text}</div>
+                                    <div class="message-footer">
+                                        <span data-action="playAudio" data-msgid="${msg.id}">🔊 播放</span>
+                                        ${msg.type ? `<span>🎬 ${msg.type}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                chatHtml += `</div>`;
+                return chatHtml;
+            };
+
+            const renderQuiz = () => {
+                if (!currentQuiz) {
+                    // 随机选一个出题人
+                    const quizMaster = characters[Math.floor(Math.random() * 3)]; // 暂时只让Ross/Monica/Joey出题
+                    const quizSet = quizBank[quizMaster.id];
+                    if (quizSet && quizSet.length > 0) {
+                        currentQuiz = {
+                            master: quizMaster,
+                            question: quizSet[0],
+                            selected: null,
+                            result: null
+                        };
+                    }
+                }
+
+                if (!currentQuiz) return `<div class="chat-container">暂无练习，请稍后...</div>`;
+
+                return `
+                    <div class="quiz-card">
+                        <div class="quiz-header">
+                            <div class="quiz-avatar">${currentQuiz.master.emoji}</div>
+                            <div>
+                                <div class="quiz-title">${currentQuiz.master.name}'s Quiz</div>
+                                <div style="font-size:13px; color:#9b7ebb;">${currentQuiz.master.style}</div>
+                            </div>
+                        </div>
+                        <div class="quiz-question">${currentQuiz.question.question}</div>
+                        <div class="quiz-options">
+                            ${currentQuiz.question.options.map((opt, idx) => `
+                                <div class="quiz-option ${currentQuiz.selected === idx ? 'selected' : ''}" 
+                                     data-action="selectQuizOption" data-opt="${idx}">
+                                    ${String.fromCharCode(65 + idx)}. ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${currentQuiz.result !== null ? `
+                            <div style="margin: 16px 0; padding: 12px; background-color: white; border-radius: 16px; border-left: 4px solid ${currentQuiz.result ? '#7d5ba6' : '#ff6b6b'};">
+                                ${currentQuiz.result ? '✅ 正确！' : '❌ 再想想...'}
+                                <div style="font-size:14px; margin-top:8px;">${currentQuiz.question.explanation}</div>
+                            </div>
+                        ` : ''}
+                        <div class="quiz-actions">
+                            <button class="icon-btn" style="flex:1;" data-action="submitQuiz">提交答案</button>
+                            <button class="icon-btn" style="flex:1;" data-action="nextQuiz">下一题</button>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const renderInputArea = () => {
+                return `
+                    <div class="input-area">
+                        <button class="voice-btn" data-action="voiceInput">🎤</button>
+                        <input type="text" class="text-input" placeholder="输入英文..." id="chatInput" 
+                               onkeypress="if(event.key==='Enter') document.querySelector('[data-action=\"sendMessage\"]').click()">
+                        <button class="invite-btn" data-action="showInvite">👥 邀请</button>
+                        <button class="voice-btn" style="width: auto; padding: 0 16px;" data-action="sendMessage">发送</button>
+                    </div>
+                `;
+            };
+
+            const renderQuizInputArea = () => {
+                return `
+                    <div class="input-area">
+                        <button class="invite-btn" style="flex:1;" data-action="newQuiz">🔄 换角色出题</button>
+                        <button class="invite-btn" style="flex:1;" data-action="backToChat">💬 回去聊天</button>
+                    </div>
+                `;
+            };
+
+            const renderInviteModal = () => {
+                return `
+                    <div class="invite-overlay" data-action="closeInvite">
+                        <div class="invite-modal" onclick="event.stopPropagation()">
+                            <h3>邀请谁加入聊天？</h3>
+                            <div class="invite-option">
+                                <input type="checkbox" id="inviteRandom" ${inviteSettings.random ? 'checked' : ''} data-action="toggleRandom">
+                                <label for="inviteRandom" class="invite-char">🎲 随机模式</label>
+                                <span class="invite-desc">让AI随机选人回复</span>
+                            </div>
+                            ${characters.map(c => `
+                                <div class="invite-option">
+                                    <input type="checkbox" data-char="${c.id}" ${inviteSettings.selected.includes(c.id) ? 'checked' : ''} data-action="toggleChar">
+                                    <span class="invite-char">${c.emoji} ${c.name}</span>
+                                    <span class="invite-desc">${c.style}</span>
+                                </div>
+                            `).join('')}
+                            <div class="invite-actions">
+                                <button class="icon-btn" style="flex:1;" data-action="saveInvite">确认</button>
+                                <button class="icon-btn" style="flex:1;" data-action="closeInvite">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            // ---------- 事件处理 ----------
+            const handleAction = (e) => {
+                const target = e.target.closest('[data-action]');
+                if (!target) return;
+                
+                const action = target.dataset.action;
+
+                switch(action) {
+                    case 'setMode':
+                        currentMode = target.dataset.mode;
+                        render();
+                        break;
+
+                    case 'newQuote':
+                        const newChar = characters[Math.floor(Math.random() * characters.length)];
+                        const newQ = quotes[newChar.id][Math.floor(Math.random() * quotes[newChar.id].length)];
+                        currentQuoteChar = newChar;
+                        currentQuote = newQ;
+                        render();
+                        break;
+
+                    case 'toggleFavorite':
+                        if (favorites.includes(currentQuote.text)) {
+                            favorites = favorites.filter(f => f !== currentQuote.text);
+                        } else {
+                            favorites.push(currentQuote.text);
+                        }
+                        localStorage.setItem('favorites', JSON.stringify(favorites));
+                        render();
+                        break;
+
+                    case 'sendMessage':
+                        const input = document.getElementById('chatInput');
+                        if (input && input.value.trim()) {
+                            const userMsg = input.value.trim();
+                            messages.push({
+                                id: Date.now().toString(),
+                                character: 'you',
+                                text: userMsg,
+                                time: formatTime(),
+                                type: '你'
+                            });
+
+                            // 模拟AI回复
+                            setTimeout(() => {
+                                const randomChar = characters[Math.floor(Math.random() * characters.length)];
+                                const responseText = getAIResponse(userMsg, randomChar);
+                                messages.push({
+                                    id: (Date.now()+1).toString(),
+                                    character: randomChar.id,
+                                    text: responseText,
+                                    time: formatTime(),
+                                    type: Math.random() > 0.5 ? '台词' : '模仿'
+                                });
+                                render();
+                            }, 800);
+
+                            input.value = '';
+                            render();
+                        }
+                        break;
+
+                    case 'voiceInput':
+                        alert('🎤 语音输入已开启（演示模式，实际需要浏览器支持语音识别）');
+                        break;
+
+                    case 'showInvite':
+                        showInviteModal = true;
+                        render();
+                        break;
+
+                    case 'closeInvite':
+                        showInviteModal = false;
+                        render();
+                        break;
+
+                    case 'toggleRandom':
+                        inviteSettings.random = !inviteSettings.random;
+                        if (inviteSettings.random) {
+                            inviteSettings.selected = [];
+                        }
+                        render();
+                        break;
+
+                    case 'toggleChar':
+                        const charId = target.dataset.char;
+                        if (inviteSettings.selected.includes(charId)) {
+                            inviteSettings.selected = inviteSettings.selected.filter(c => c !== charId);
+                        } else {
+                            inviteSettings.selected.push(charId);
+                            if (inviteSettings.selected.length > 0) {
+                                inviteSettings.random = false;
+                            }
+                        }
+                        render();
+                        break;
+
+                    case 'saveInvite':
+                        showInviteModal = false;
+                        // 这里可以保存邀请设置
+                        render();
+                        break;
+
+                    case 'playAudio':
+                        alert('🔊 播放语音（演示模式，实际需要TTS合成）');
+                        break;
+
+                    case 'selectQuizOption':
+                        if (currentQuiz) {
+                            currentQuiz.selected = parseInt(target.dataset.opt);
+                            render();
+                        }
+                        break;
+
+                    case 'submitQuiz':
+                        if (currentQuiz && currentQuiz.selected !== null) {
+                            const correct = currentQuiz.selected === currentQuiz.question.answer;
+                            currentQuiz.result = correct;
+                            render();
+                        }
+                        break;
+
+                    case 'nextQuiz':
+                        const nextMaster = characters[Math.floor(Math.random() * 3)];
+                        const nextSet = quizBank[nextMaster.id];
+                        if (nextSet && nextSet.length > 0) {
+                            currentQuiz = {
+                                master: nextMaster,
+                                question: nextSet[0],
+                                selected: null,
+                                result: null
+                            };
+                        }
+                        render();
+                        break;
+
+                    case 'newQuiz':
+                        currentQuiz = null;
+                        render();
+                        break;
+
+                    case 'backToChat':
+                        currentMode = 'chat';
+                        render();
+                        break;
+                }
+            };
+
+            // 模拟AI回复（简单版）
+            const getAIResponse = (userMsg, character) => {
+                const lowerMsg = userMsg.toLowerCase();
+                
+                if (lowerMsg.includes('mean') || lowerMsg.includes('what is')) {
+                    if (character.id === 'ross') {
+                        return "Ah, etymology! Let me explain the fascinating origins of that word...";
+                    } else if (character.id === 'chandler') {
+                        return "Could you *be* any more curious? But since you asked...";
+                    }
+                }
+                
+                if (lowerMsg.includes('how are you')) {
+                    if (character.id === 'joey') {
+                        return "How YOU doing? Wait, that's my line! I'm great, just had pizza.";
+                    } else if (character.id === 'monica') {
+                        return "I'm perfect! Just cleaned the whole apartment. Want to see?";
+                    }
+                }
+                
+                // 默认回复
+                const responses = [
+                    "That's interesting! Tell me more.",
+                    "I see what you mean. In New York, we say it differently...",
+                    "Oh! That reminds me of this one time at Central Perk...",
+                    "You're learning so fast! Keep going!"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            };
+
+            // 初始化
+            document.addEventListener('click', handleAction);
+            render();
+        })();
+    </script>
+</body>
+</html>
